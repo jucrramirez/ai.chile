@@ -1,25 +1,27 @@
 #!/usr/bin/env bash
 
 # Secure interactive install script for ai.chile
-# Supported IDEs: Cursor, OpenCode
+# Supported IDEs: Cursor, OpenCode, VS Code / GitHub Copilot
 
 set -euo pipefail
 
 echo "🌶️  Welcome to the ai.chile installer! 🌶️"
-echo "We will set up the ai.chile commands for your environment."
+echo "We will set up the ai.chile commands and prompts for your environment."
 echo ""
 
 # 1. Select IDE
 IDE_SELECTION=""
 while true; do
-  echo "Select your IDE (Please enter 1 or 2):"
+  echo "Select your IDE (Please enter 1, 2, or 3):"
   echo "  1) Cursor"
   echo "  2) OpenCode"
+  echo "  3) VS Code / GitHub Copilot"
   read -r -p "> " choice
   case "$choice" in
     1) IDE_SELECTION="Cursor"; break ;;
     2) IDE_SELECTION="OpenCode"; break ;;
-    *) echo "Invalid selection. Please enter 1 or 2."; echo "" ;;
+    3) IDE_SELECTION="Copilot"; break ;;
+    *) echo "Invalid selection. Please enter 1, 2, or 3."; echo "" ;;
   esac
 done
 
@@ -109,6 +111,7 @@ if (fs.existsSync(configFile)) {
   try { config = JSON.parse(fs.readFileSync(configFile, "utf8")); }
   catch { console.error(`Cannot update non-JSON config: ${configFile}`); process.exit(1); }
 }
+
 config.plugin = Array.isArray(config.plugin) ? config.plugin : [];
 const entry = `file://${pluginPath}`;
 if (!config.plugin.includes(entry)) config.plugin.push(entry);
@@ -118,10 +121,34 @@ NODE
   echo "✅ Installed OpenCode plugin, commands, and skills to $target_root"
 }
 
+install_copilot() {
+  echo "Where would you like to install the Copilot prompt files?"
+  echo "  1) In the current working folder (./.github/prompts)"
+  echo "  2) Specific project path"
+  local target_root=""
+  while true; do
+    read -r -p "> " c_choice
+    case "$c_choice" in
+      1) target_root="$(pwd)"; break ;;
+      2)
+        read -r -p "Enter absolute path to the project root: " custom_path
+        target_root="$custom_path"
+        break
+        ;;
+      *) echo "Invalid selection. Please enter 1 or 2." ;;
+    esac
+  done
+
+  mkdir -p "$target_root/.github/prompts"
+  cp "$REPO_DIR/.github/prompts/"*.prompt.md "$target_root/.github/prompts/"
+  echo "✅ Installed Copilot prompt files to $target_root/.github/prompts"
+}
+
 # 3. Execute installation
 case "$IDE_SELECTION" in
   "Cursor") install_cursor ;;
   "OpenCode") install_opencode ;;
+  "Copilot") install_copilot ;;
 esac
 
 echo ""

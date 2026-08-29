@@ -1,7 +1,5 @@
 # Local and private context
 .context/
-.cursor/
-.opencode/
 
 # Operating System Files
 .DS_Store

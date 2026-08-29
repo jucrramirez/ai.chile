@@ -12,6 +12,7 @@
   "files": [
     ".opencode/",
     ".cursor/",
+    ".github/",
     "skills/",
     "README.md"
   ]

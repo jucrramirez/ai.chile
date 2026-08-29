@@ -14,19 +14,27 @@ The name comes from the famous Mexican phrase *"Al chile"* (meaning to be direct
 
 ## 🎯 Current Tools
 
-One plugin, many modes, utilizing Mexican meme references:
+One plugin, three auditor modes, utilizing Mexican meme references:
 
 - **elmatabichos** — Evidence-based debugging: hunt the bicho (bug), find the root cause, apply the smallest safe fix. `/elmatabichos` *(Note: This skill is excluded from Cursor installations, as Cursor natively provides a powerful Agent Debug Mode. This is intended to bring similar functionality to other IDEs).*
 - **elmatamuertos** — Dead-code auditor: dead code/imports/tests, unused packages and env vars, duplications, redundancy, dangling docs pointing at nonexistent files. One-shot report, no fixes. `/elmatamuertos`
 - **elmatachingaderas** — Bad-implementation auditor: tech debt, thin wrappers, huge modules, bad logic, test-only code, badly designed tests, magic constants, generic names, embedded prompts, duplications, redundancies, or missing validation. One-shot report, no fixes. `/elmatachingaderas`
+- **elchalan** — Persistent auditor intensity controller. `/elchalan godin|chakaloso|chambeador|off`
 
-## 🎭 The Orchestrator (Upcoming)
+## 🎭 El Chalan
 
-Ideally, `elmatamuertos` and `elmatachingaderas` will act depending on a persistent orchestrator command (currently in development). This orchestrator will modify the behavior of the auditors (but not the debugger) and will feature three distinct modes:
+`elchalan` persists the selected intensity and changes only the two auditors.
+It never changes `elmatabichos`.
 
-- **El ñero** — The lazy, default mood (standard Ponytail approach).
-- **[No name yet]** — The full, thorough equivalent.
-- **El chambeador** — The ultra-productive, hardcore equivalent.
+- **godin** — Low: fast, lightweight, and pragmatic.
+- **chakaloso** — Medium: focused, critical, and appropriately thorough.
+- **chambeador** — High: exhaustive and maximum effort.
+- **off** — Disable the auditor overlay.
+
+Use `/elchalan` without an argument to select `chakaloso`. In OpenCode, the mode
+is stored at `~/.config/ai.chile/mode` and survives sessions. Cursor commands
+can select the mode for the current conversation; Cursor does not provide a
+plugin hook for cross-session persistence.
 
 ## 🚀 Installation
 
@@ -35,7 +43,7 @@ Ideally, `elmatamuertos` and `elmatachingaderas` will act depending on a persist
 Before running the installer, you need:
 
 - **Bash** on macOS, Linux, or WSL on Windows.
-- **Cursor** or **OpenCode**, depending on the target you choose.
+- **Cursor**, **OpenCode**, or **VS Code with GitHub Copilot**, depending on the target you choose.
 - **Node.js** when installing for OpenCode. The installer uses it to update
   `opencode.json`; no npm packages are required.
 
@@ -51,7 +59,7 @@ chmod +x install.sh
 ./install.sh
 ```
 
-During installation, you will be asked to choose exactly one IDE: **Cursor** or **OpenCode**. You can choose to install globally, in the current folder, or in a specific project.
+During installation, you will be asked to choose exactly one target: **Cursor**, **OpenCode**, or **VS Code / GitHub Copilot**. Cursor and OpenCode support global, current-folder, or specific-project installation. Copilot prompt files are installed in the current or a specific project.
 
 ### Cursor
 
@@ -78,9 +86,21 @@ The OpenCode commands are:
 - `/elmatabichos`
 - `/elmatamuertos`
 - `/elmatachingaderas`
+- `/elchalan godin|chakaloso|chambeador|off`
 
 The installer expects `opencode.json` to contain valid JSON. Back up or
 manually update a JSONC configuration before installing if it contains comments.
+
+### VS Code / GitHub Copilot
+
+The installer copies prompt files to `.github/prompts`. In VS Code, enable
+prompt files with `"chat.promptFiles": true` if they are not already enabled,
+then invoke them from Copilot Chat with `/elmatamuertos`, `/elmatachingaderas`,
+`/elmatabichos`, or `/elchalan`.
+
+Prompt files are workspace-scoped and do not persist `elchalan` mode between
+conversations. `elmatabichos` is available here because Copilot has no Cursor
+equivalent of the native Debug mode exclusion.
 
 ### Manual OpenCode setup
 
@@ -101,6 +121,7 @@ No `npm install` step is needed.
 ai.chile/
 ├── install.sh                        # Interactive installer
 ├── .cursor/commands/*.md             # Cursor slash commands
+├── .github/prompts/*.prompt.md       # Copilot prompt files
 ├── .opencode/command/*.md            # OpenCode commands
 ├── .opencode/plugins/ai-chile.mjs    # registers commands + skills
 └── skills/                           # skills: one dir per mode (auto-registered)
@@ -111,7 +132,7 @@ ai.chile/
 
 ## ➕ Adding another mode
 
-Add `skills/<name>/SKILL.md`, `.opencode/command/<name>.md`, and `.cursor/commands/<name>.md`. The OpenCode plugin discovers the skill and command files automatically.
+Add `skills/<name>/SKILL.md`, `.opencode/command/<name>.md`, `.cursor/commands/<name>.md`, and `.github/prompts/<name>.prompt.md`. The OpenCode plugin discovers the skill and command files automatically.
 
 ## 🙏 Acknowledgements & References
 

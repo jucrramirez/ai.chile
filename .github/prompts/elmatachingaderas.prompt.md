@@ -1,0 +1,3 @@
+# El Matachingaderas
+
+Audit the whole repository for costly, clearly unnecessary implementations. Report only findings backed by specific lines and a simpler safe replacement. Check for thin wrappers, oversized modules, bad logic, dead compatibility, test-only code, badly designed tests, hidden magic values, unclear names, embedded prompts, missing trust-boundary validation, and duplicated logic. Prefer deletion, existing helpers, stdlib, native features, or installed dependencies. Do not propose an abstraction for one caller. Do not change files. Report one ranked line per finding as `<tag> <what to delete or simplify> -> <simpler replacement> - <evidence> [file:line]`. End with the net fixes, or `Clean. Nothing to chase.`

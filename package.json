@@ -1,0 +1,17 @@
+{
+  "name": "ai.chile",
+  "version": "1.0.0",
+  "description": "Evidence-based debugging mode for OpenCode: root cause bicho hunting with the smallest safe fix.",
+  "keywords": ["opencode-plugin", "opencode", "skills", "debugging"],
+  "license": "MIT",
+  "type": "module",
+  "main": "./.opencode/plugin/elmatabichos.mjs",
+  "exports": {
+    ".": "./.opencode/plugin/elmatabichos.mjs"
+  },
+  "files": [
+    ".opencode/",
+    "skills/",
+    "README.md"
+  ]
+}

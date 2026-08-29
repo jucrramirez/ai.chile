@@ -5,12 +5,13 @@
   "keywords": ["opencode-plugin", "opencode", "skills", "debugging"],
   "license": "MIT",
   "type": "module",
-  "main": "./.opencode/plugin/elmatabichos.mjs",
+  "main": "./.opencode/plugins/ai-chile.mjs",
   "exports": {
-    ".": "./.opencode/plugin/elmatabichos.mjs"
+    ".": "./.opencode/plugins/ai-chile.mjs"
   },
   "files": [
     ".opencode/",
+    ".cursor/",
     "skills/",
     "README.md"
   ]

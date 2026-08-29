@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Interactive `install.sh` script to streamline the setup process for Cursor, OpenCode, and Antigravity.
+- Interactive `install.sh` script to streamline the setup process for Cursor and OpenCode.
 - Added documentation for the upcoming **Orchestrator** modes ("El ñero", "[No name yet]", "El chambeador").
 - `.gitignore` configured to ignore local context, OS files, dependencies, and temporary artifacts.
 - Explicit **Acknowledgements & References** section in `README.md` referencing the Ponytail project and Dietrich Gebert.

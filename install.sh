@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Secure interactive install script for ai.chile
-# Supported IDEs: Cursor, OpenCode, VS Code / GitHub Copilot
+# Supported IDEs: Cursor, OpenCode, Codex, Claude Code, VS Code / GitHub Copilot
 
 set -euo pipefail
 
@@ -12,16 +12,20 @@ echo ""
 # 1. Select IDE
 IDE_SELECTION=""
 while true; do
-  echo "Select your IDE (Please enter 1, 2, or 3):"
+  echo "Select your IDE (Please enter 1, 2, 3, 4, or 5):"
   echo "  1) Cursor"
   echo "  2) OpenCode"
-  echo "  3) VS Code / GitHub Copilot"
+  echo "  3) Codex"
+  echo "  4) Claude Code"
+  echo "  5) VS Code / GitHub Copilot"
   read -r -p "> " choice
   case "$choice" in
     1) IDE_SELECTION="Cursor"; break ;;
     2) IDE_SELECTION="OpenCode"; break ;;
-    3) IDE_SELECTION="Copilot"; break ;;
-    *) echo "Invalid selection. Please enter 1, 2, or 3."; echo "" ;;
+    3) IDE_SELECTION="Codex"; break ;;
+    4) IDE_SELECTION="Claude Code"; break ;;
+    5) IDE_SELECTION="Copilot"; break ;;
+    *) echo "Invalid selection. Please enter a number from 1 to 5."; echo "" ;;
   esac
 done
 
@@ -154,6 +158,44 @@ NODE
   echo "✅ Installed OpenCode plugin, commands, and skills to $target_root"
 }
 
+install_agent_skills() {
+  local agent_name="$1"
+  local global_dir="$2"
+  local project_dir="$3"
+  local target_dir=""
+
+  echo "Where would you like to install ai.chile skills for $agent_name?"
+  echo "  1) Globally ($global_dir)"
+  echo "  2) In the current working folder ($project_dir)"
+  echo "  3) Specific project path"
+  while true; do
+    read -r -p "> " skill_choice
+    case "$skill_choice" in
+      1) target_dir="$global_dir"; break ;;
+      2) target_dir="$(pwd)/$project_dir"; break ;;
+      3)
+        read -r -p "Enter absolute path to the project root: " custom_path
+        target_dir="$custom_path/$project_dir"
+        break
+        ;;
+      *) echo "Invalid selection. Please enter 1, 2, or 3." ;;
+    esac
+  done
+
+  mkdir -p "$target_dir"
+  cp -R "$SKILLS_DIR/". "$target_dir/"
+  echo "✅ Installed $agent_name skills to $target_dir"
+  echo "   Invoke the installed skills from your agent's skills picker."
+}
+
+install_codex() {
+  install_agent_skills "Codex" "$HOME/.codex/skills" ".codex/skills"
+}
+
+install_claude_code() {
+  install_agent_skills "Claude Code" "$HOME/.claude/skills" ".claude/skills"
+}
+
 install_copilot() {
   echo "Where would you like to install the Copilot prompt files?"
   echo "  1) In the current working folder (./.github/prompts)"
@@ -181,6 +223,8 @@ install_copilot() {
 case "$IDE_SELECTION" in
   "Cursor") install_cursor ;;
   "OpenCode") install_opencode ;;
+  "Codex") install_codex ;;
+  "Claude Code") install_claude_code ;;
   "Copilot") install_copilot ;;
 esac
 

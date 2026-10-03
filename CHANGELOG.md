@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Add Codex and Claude Code installation targets using their native skill
+  directories.
+- Add the portable `elchalan` skill and share its persisted intensity state
+  with OpenCode.
+- Add `elbuscabichos`, a report-only bug auditor with whole-repository and
+  `webon` (uncommitted changes only) modes.
+
 ## [1.1.0] - 2026-10-03
 
 ### Added

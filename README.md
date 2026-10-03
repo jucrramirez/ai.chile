@@ -54,8 +54,8 @@ In OpenCode, the mode is stored at `~/.config/ai.chile/mode` and survives sessio
 ### Dependencies
 
 - **Bash** on macOS, Linux, or WSL on Windows.
-- **Cursor**, **OpenCode**, or **VS Code with GitHub Copilot**, depending on the target.
-- **Node.js** when installing for OpenCode. The installer uses it to update `opencode.json`; no npm packages are required.
+- **Cursor**, **OpenCode** (V1 or V2), or **VS Code with GitHub Copilot**, depending on the target.
+- **Node.js** when installing for OpenCode. The installer uses it to update `opencode.json` / `opencode.jsonc`; no npm packages are required.
 
 Cursor installation does not require Node.js.
 
@@ -69,6 +69,8 @@ chmod +x install.sh && ./install.sh
 
 During installation, choose exactly one target: **Cursor**, **OpenCode**, or **VS Code / GitHub Copilot**. Cursor and OpenCode support global, current-folder, or specific-project installation. Copilot prompt files are installed in the current or a specific project.
 
+> **OpenCode V2:** The installer writes both V1 (`"plugin"`) and V2 (`"plugins"`) keys to your config file for maximum compatibility. If you are on OpenCode V2 you can safely remove the deprecated `"plugin"` key after installation.
+
 ### Cursor
 
 The installer copies these slash commands to the selected `.cursor/commands` directory:
@@ -80,11 +82,13 @@ The installer copies these slash commands to the selected `.cursor/commands` dir
 
 ### OpenCode
 
-The installer copies the plugin, commands, and skills, then adds the plugin to the selected `opencode.json`:
+The installer copies the plugin, commands, and skills, then adds the plugin to the selected `opencode.json` or `opencode.jsonc`:
 
-- Global: `~/.config/opencode/ai.chile` and `~/.config/opencode/opencode.json`.
-- Current project: `.opencode/`, `skills/`, and `opencode.json` in the current directory.
+- Global: `~/.config/opencode/ai.chile` and `~/.config/opencode/opencode.json(c)`.
+- Current project: `.opencode/`, `skills/`, and `opencode.json(c)` in the current directory.
 - Specific project: the same files in the path you provide.
+
+The plugin supports both **OpenCode V1** and **V2**. On V1, a deprecation warning is printed to the console recommending migration to V2.
 
 Commands:
 
@@ -93,7 +97,7 @@ Commands:
 - `/elmatachingaderas`
 - `/elchalan godin|chakaloso|chambeador|off`
 
-The installer expects `opencode.json` to contain valid JSON. Back up or manually update a JSONC configuration before installing if it contains comments.
+The installer supports both `opencode.json` and `opencode.jsonc` (with `//` and `/* */` comments). It prefers `.jsonc` when both files exist.
 
 ### VS Code / GitHub Copilot
 
@@ -103,7 +107,18 @@ Prompt files are workspace-scoped and do not persist `elchalan` mode between con
 
 ### Manual OpenCode setup
 
-To use a checkout without running the installer, add the plugin path to your OpenCode configuration:
+To use a checkout without running the installer, add the plugin path to your OpenCode configuration.
+
+**OpenCode V2** (`opencode.jsonc`):
+
+```jsonc
+{
+  "plugins": ["file:///PATH/TO/ai.chile/.opencode/plugins/ai-chile.mjs"],
+  "skills": ["./PATH/TO/ai.chile/skills"]
+}
+```
+
+**OpenCode V1** (deprecated — `opencode.json`):
 
 ```json
 {
@@ -119,11 +134,11 @@ No `npm install` step is needed.
 
 ```text
 ai.chile/
-├── install.sh                        # Interactive installer
+├── install.sh                        # Interactive installer (V1 + V2)
 ├── .cursor/commands/*.md             # Cursor slash commands
 ├── .github/prompts/*.prompt.md       # Copilot prompt files
 ├── .opencode/command/*.md            # OpenCode commands
-├── .opencode/plugins/ai-chile.mjs    # registers commands + skills
+├── .opencode/plugins/ai-chile.mjs    # Dual V1/V2 plugin entry point
 └── skills/                           # skills: one dir per mode (auto-registered)
     ├── elmatabichos/
     ├── elmatachingaderas/

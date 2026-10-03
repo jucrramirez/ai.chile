@@ -99,24 +99,57 @@ install_opencode() {
   cp "$REPO_DIR/.opencode/plugins/ai-chile.mjs" "$target_root/.opencode/plugins/"
   cp "$REPO_DIR/.opencode/command/"*.md "$target_root/.opencode/command/"
   cp -R "$SKILLS_DIR/". "$target_root/skills/"
-  local config_file="$HOME/.config/opencode/opencode.json"
+
+  # Resolve config file — prefer .jsonc when it exists, fall back to .json
+  local config_dir="$HOME/.config/opencode"
   if [[ "$target_root" != "$HOME/.config/opencode/ai.chile" ]]; then
-    config_file="$target_root/opencode.json"
+    config_dir="$target_root"
   fi
-  node - "$config_file" "$target_root/.opencode/plugins/ai-chile.mjs" <<'NODE'
+  local config_file=""
+  if [[ -f "$config_dir/opencode.jsonc" ]]; then
+    config_file="$config_dir/opencode.jsonc"
+  else
+    config_file="$config_dir/opencode.json"
+  fi
+
+  node - "$config_file" "$target_root/.opencode/plugins/ai-chile.mjs" "$target_root/skills" <<'NODE'
 const fs = require("node:fs");
-const [configFile, pluginPath] = process.argv.slice(2);
-let config = {};
-if (fs.existsSync(configFile)) {
-  try { config = JSON.parse(fs.readFileSync(configFile, "utf8")); }
-  catch { console.error(`Cannot update non-JSON config: ${configFile}`); process.exit(1); }
+const nodePath = require("node:path");
+const [configFile, pluginPath, skillsPath] = process.argv.slice(2);
+
+// Strip JSON comments (// and /* */) so we can parse .jsonc files
+function stripJsonComments(text) {
+  return text.replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "");
 }
 
+let config = {};
+if (fs.existsSync(configFile)) {
+  const raw = fs.readFileSync(configFile, "utf8");
+  try { config = JSON.parse(stripJsonComments(raw)); }
+  catch { console.error(`Cannot parse config: ${configFile}`); process.exit(1); }
+}
+
+const pluginEntry = `file://${pluginPath}`;
+
+// ── V2 format: "plugins" array (preferred) ──
+config.plugins = Array.isArray(config.plugins) ? config.plugins : [];
+if (!config.plugins.includes(pluginEntry)) config.plugins.push(pluginEntry);
+
+// Add skills path for V2 auto-discovery
+config.skills = Array.isArray(config.skills) ? config.skills : [];
+if (!config.skills.includes(skillsPath)) config.skills.push(skillsPath);
+
+// ── V1 format: keep "plugin" array for backward compatibility ──
 config.plugin = Array.isArray(config.plugin) ? config.plugin : [];
-const entry = `file://${pluginPath}`;
-if (!config.plugin.includes(entry)) config.plugin.push(entry);
-fs.mkdirSync(require("node:path").dirname(configFile), { recursive: true });
+if (!config.plugin.includes(pluginEntry)) config.plugin.push(pluginEntry);
+
+fs.mkdirSync(nodePath.dirname(configFile), { recursive: true });
 fs.writeFileSync(configFile, `${JSON.stringify(config, null, 2)}\n`);
+
+console.log("  📦 Config updated: " + configFile);
+if (config.plugin.length > 0) {
+  console.log('  ⚠️  The V1 "plugin" key is deprecated. Rename it to "plugins" when you upgrade to OpenCode V2.');
+}
 NODE
   echo "✅ Installed OpenCode plugin, commands, and skills to $target_root"
 }

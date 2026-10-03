@@ -2,6 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+// ── Shared constants ────────────────────────────────────────────────────────
+
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const stateFile = path.join(
   process.env.XDG_CONFIG_HOME || path.join(process.env.HOME, ".config"),
@@ -13,6 +15,8 @@ const modes = {
   chakaloso: "Medium intensity: be focused and critical; verify relevant callers, references, and behavior before reporting.",
   chambeador: "High intensity: be exhaustive; inspect the whole repository and report every proven finding, while remaining report-only.",
 };
+
+// ── Shared helpers ──────────────────────────────────────────────────────────
 
 function mode() {
   try {
@@ -36,7 +40,64 @@ function readCommand(file) {
   return { description, template: match[2].trim() };
 }
 
-export default async function AiChilePlugin() {
+function handleChalanCommand(input) {
+  if (input?.command !== "elchalan") return;
+  const selected = String(input.arguments || "").trim().toLowerCase() || "chakaloso";
+  if (selected === "off" || modes[selected]) saveMode(selected);
+}
+
+function buildSystemOverlay() {
+  const selected = mode();
+  if (selected === "off") return null;
+  return (
+    `elchalan ${selected}: ${modes[selected]} ` +
+    "Apply this overlay only to elmatamuertos and elmatachingaderas. " +
+    "It must not change elmatabichos behavior."
+  );
+}
+
+// ── V2: Plugin.define (@opencode/plugin) ────────────────────────────────────
+
+let v2Plugin;
+try {
+  const { Plugin } = await import("@opencode/plugin");
+  v2Plugin = Plugin.define({
+    id: "ai-chile",
+    async setup(ctx) {
+      // In V2, commands in .opencode/command/ and skills in skills/ are
+      // auto-discovered via opencode.jsonc paths. The plugin only needs to
+      // register hooks for runtime behavior.
+
+      // Persist elchalan mode on command execution
+      ctx.command.hook("execute.before", async (input) => {
+        handleChalanCommand(input);
+      });
+
+      // Inject auditor-intensity overlay into the system prompt
+      await ctx.session.hook(
+        "experimental.chat.system.transform",
+        async (_input, output) => {
+          const overlay = buildSystemOverlay();
+          if (overlay) {
+            output.system ??= [];
+            output.system.push(overlay);
+          }
+        },
+      );
+    },
+  });
+} catch {
+  // @opencode/plugin not available — running on OpenCode V1
+}
+
+// ── V1: Legacy default-export function (deprecated) ─────────────────────────
+
+async function AiChilePluginV1() {
+  console.warn(
+    "[ai.chile] ⚠️  You are using the deprecated V1 plugin format.\n" +
+      '  → Rename "plugin" to "plugins" in your opencode.json(c) and update\n' +
+      "    to the V2 format. See https://github.com/jucrramirez/ai.chile",
+  );
   return {
     config: async (config) => {
       config.skills ??= {};
@@ -52,18 +113,18 @@ export default async function AiChilePlugin() {
       }
     },
     "command.execute.before": async (input) => {
-      if (input?.command !== "elchalan") return;
-      const selected = String(input.arguments || "").trim().toLowerCase() || "chakaloso";
-      if (selected === "off" || modes[selected]) saveMode(selected);
+      handleChalanCommand(input);
     },
     "experimental.chat.system.transform": async (_input, output) => {
-      const selected = mode();
-      if (selected !== "off") {
+      const overlay = buildSystemOverlay();
+      if (overlay) {
         output.system ??= [];
-        output.system.push(
-          `elchalan ${selected}: ${modes[selected]} Apply this overlay only to elmatamuertos and elmatachingaderas. It must not change elmatabichos behavior.`,
-        );
+        output.system.push(overlay);
       }
     },
   };
 }
+
+// ── Export: V2 when available, V1 as fallback ───────────────────────────────
+
+export default v2Plugin ?? AiChilePluginV1;

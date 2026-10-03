@@ -46,7 +46,12 @@ One plugin, four focused workflows, utilizing Mexican meme references:
 
 Use `/elchalan` without an argument to select `chakaloso`.
 
-In OpenCode, Codex, and Claude Code, the mode is stored at `~/.config/ai.chile/mode` (or `$XDG_CONFIG_HOME/ai.chile/mode`) and survives sessions. This makes the selected mode shared across those clients on the same machine. Cursor and Copilot prompt files can select the mode only for the current conversation because they do not provide a persistent runtime hook.
+In OpenCode, Codex, Claude Code, and VS Code Copilot Agent Skills, the mode is
+stored at `~/.config/ai.chile/mode` (or `$XDG_CONFIG_HOME/ai.chile/mode`) and
+survives sessions. This makes the selected mode shared across those clients on
+the same machine. Cursor commands and legacy Copilot prompt files can select
+the mode only for the current conversation because they do not provide a
+persistent runtime hook.
 
 ---
 
@@ -68,7 +73,7 @@ The installer is interactive and copies only the files for the IDE you select.
 chmod +x install.sh && ./install.sh
 ```
 
-During installation, choose exactly one target: **Cursor**, **OpenCode**, **Codex**, **Claude Code**, or **VS Code / GitHub Copilot**. Cursor, OpenCode, Codex, and Claude Code support global, current-folder, or specific-project installation. Copilot prompt files are installed in the current or a specific project.
+During installation, choose exactly one target: **Cursor**, **OpenCode**, **Codex**, **Claude Code**, or **VS Code / GitHub Copilot**. Every target supports global, current-folder, or specific-project installation.
 
 > **OpenCode V2:** The installer writes both V1 (`"plugin"`) and V2 (`"plugins"`) keys to your config file for maximum compatibility. If you are on OpenCode V2 you can safely remove the deprecated `"plugin"` key after installation.
 
@@ -130,9 +135,22 @@ Codex on the same machine.
 
 ### VS Code / GitHub Copilot
 
-The installer copies prompt files to `.github/prompts`. In VS Code, enable prompt files with `"chat.promptFiles": true` if they are not already enabled, then invoke them from Copilot Chat with `/elmatamuertos`, `/elmatachingaderas`, `/elmatabichos`, `/elbuscabichos [webon]`, or `/elchalan`.
+The installer copies portable Agent Skills, which appear alongside other skills
+in VS Code's Copilot Chat slash-command picker:
 
-Prompt files are workspace-scoped and do not persist `elchalan` mode between conversations. `elmatabichos` is available here because Copilot has no Cursor equivalent of the native Debug mode exclusion.
+- Global: `~/.copilot/skills/`
+- Current project: `.github/skills/`
+- Specific project: `<project>/.github/skills/`
+
+Invoke `/elmatamuertos`, `/elmatachingaderas`, `/elmatabichos`,
+`/elbuscabichos [webon]`, or `/elchalan`. The global option works over SSH on
+the remote host, because VS Code discovers personal Copilot skills from that
+host's `~/.copilot/skills/` directory. `elmatabichos` is available here because
+Copilot has no Cursor equivalent of the native Debug mode exclusion.
+
+Legacy `.github/prompts` files remain in this repository for existing Local
+agent users, but the installer uses Agent Skills because VS Code is moving away
+from prompt files for Agent Host sessions.
 
 ### Manual OpenCode setup
 
@@ -165,7 +183,7 @@ No `npm install` step is needed.
 ai.chile/
 ├── install.sh                        # Interactive installer for all clients
 ├── .cursor/commands/*.md             # Cursor slash commands
-├── .github/prompts/*.prompt.md       # Copilot prompt files
+├── .github/prompts/*.prompt.md       # Legacy Copilot prompt files
 ├── .opencode/command/*.md            # OpenCode commands
 ├── .opencode/plugins/ai-chile.mjs    # Dual V1/V2 plugin entry point
 └── skills/                           # portable skills: one dir per mode
@@ -180,7 +198,11 @@ ai.chile/
 
 ## ➕ Adding another mode
 
-Add `skills/<name>/SKILL.md`, `.opencode/command/<name>.md`, `.cursor/commands/<name>.md`, and `.github/prompts/<name>.prompt.md`. Codex and Claude Code consume the `skills/` directory directly; the OpenCode plugin discovers skills and command files automatically.
+Add `skills/<name>/SKILL.md`, `.opencode/command/<name>.md`, and
+`.cursor/commands/<name>.md`. Codex, Claude Code, and VS Code Copilot consume
+the `skills/` directory directly; the OpenCode plugin discovers skills and
+command files automatically. Add `.github/prompts/<name>.prompt.md` only when
+maintaining legacy Local-agent prompt-file compatibility.
 
 ---
 

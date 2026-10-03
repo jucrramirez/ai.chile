@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   with OpenCode.
 - Add `elbuscabichos`, a report-only bug auditor with whole-repository and
   `webon` (uncommitted changes only) modes.
+- Install Copilot workflows as portable Agent Skills, including global
+  `~/.copilot/skills` support.
 
 ## [1.1.0] - 2026-10-03
 

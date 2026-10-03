@@ -197,26 +197,10 @@ install_claude_code() {
 }
 
 install_copilot() {
-  echo "Where would you like to install the Copilot prompt files?"
-  echo "  1) In the current working folder (./.github/prompts)"
-  echo "  2) Specific project path"
-  local target_root=""
-  while true; do
-    read -r -p "> " c_choice
-    case "$c_choice" in
-      1) target_root="$(pwd)"; break ;;
-      2)
-        read -r -p "Enter absolute path to the project root: " custom_path
-        target_root="$custom_path"
-        break
-        ;;
-      *) echo "Invalid selection. Please enter 1 or 2." ;;
-    esac
-  done
-
-  mkdir -p "$target_root/.github/prompts"
-  cp "$REPO_DIR/.github/prompts/"*.prompt.md "$target_root/.github/prompts/"
-  echo "✅ Installed Copilot prompt files to $target_root/.github/prompts"
+  install_agent_skills \
+    "VS Code / GitHub Copilot" \
+    "$HOME/.copilot/skills" \
+    ".github/skills"
 }
 
 # 3. Execute installation
